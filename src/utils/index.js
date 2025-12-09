@@ -30,3 +30,13 @@ export const imageUpload = async (imageData) => {
 //   );
 //   return data.secure_url;
 // };
+
+// User save
+
+export const saveUser = async (userData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_API_URL}/user`,
+    userData
+  );
+  return data;
+};

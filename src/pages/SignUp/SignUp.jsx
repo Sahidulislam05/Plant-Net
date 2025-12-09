@@ -4,7 +4,7 @@ import useAuth from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { useForm } from "react-hook-form";
-import { imageUpload } from "../../utils";
+import { imageUpload, saveUser } from "../../utils";
 
 const SignUp = () => {
   const { createUser, updateUserProfile, signInWithGoogle, loading } =
@@ -37,7 +37,9 @@ const SignUp = () => {
       const imageURL = await imageUpload(imageFile);
 
       //1. User Registration
-      const result = await createUser(email, password);
+      // const result = await createUser(email, password);
+      await createUser(email, password);
+      await saveUser({ name, image: imageURL, email });
 
       // 2. Generate image url from selected file
 
@@ -47,7 +49,7 @@ const SignUp = () => {
       navigate(from, { replace: true });
       toast.success("Signup Successful");
 
-      console.log(result);
+      // console.log(result);
     } catch (err) {
       console.log(err);
       toast.error(err?.message);
@@ -57,16 +59,22 @@ const SignUp = () => {
   // Handle Google Signin
   const handleGoogleSignIn = async () => {
     try {
-      //User Registration using google
-      await signInWithGoogle();
+      const { user } = await signInWithGoogle();
+
+      await saveUser({
+        name: user?.displayName,
+        image: user?.photoURL,
+        email: user?.email,
+      });
 
       navigate(from, { replace: true });
       toast.success("Signup Successful");
     } catch (err) {
       console.log(err);
-      toast.error(err?.message);
+      toast.error(err?.message || "Something went wrong");
     }
   };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
       <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
